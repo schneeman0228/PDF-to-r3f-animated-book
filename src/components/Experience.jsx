@@ -6,8 +6,11 @@ export const Experience = () => {
   return (
     <>
       <PDFBook 
-          pdfUrl="/textures/bp_B6.pdf"  // PDFファイルへのパスを指定
-          coverpdfUrl="/textures/cover.pdf"  // PDFファイルへのパスを指定
+          pdfUrl="https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+          coverpdfUrl="https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf"
+    
+          //pdfUrl="/textures/B6.pdf"  // PDFファイルへのパスを指定
+          //coverpdfUrl="/textures/cover.pdf"  // PDFファイルへのパスを指定
           position={[0, 0, 0]}
           scale={1}
       />
