@@ -8,7 +8,7 @@ import * as pdfjs from 'pdfjs-dist';
 
 //こいつを読み込むのに3時間くらいかかった気が。結局ローカル最強
 // 静的なパスを使用
-pdfjs.GlobalWorkerOptions.workerSrc = '/public/pdfjs/pdf.worker.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
 
 import {
   Bone,
