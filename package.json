@@ -2,7 +2,7 @@
   "name": "r3f-vite-starter",
   "private": true,
   "version": "1.0.0",
-  "homepage": "https://schneeman0228.github.io/PDF-to-r3f-animated-book/",
+  "homepage": "https://schneeman0228.github.io/PDF-to-r3f-animated-book",
   "type": "module",
   "scripts": {
     "dev": "vite",
