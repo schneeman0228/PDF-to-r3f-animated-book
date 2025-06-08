@@ -6,7 +6,7 @@ export const Experience = () => {
   return (
     <>
       <PDFBook 
-          pdfUrl="/textures/bp02_B6.pdf"  // PDFファイルへのパスを指定
+          pdfUrl="/textures/bp_B6.pdf"  // PDFファイルへのパスを指定
           coverpdfUrl="/textures/cover.pdf"  // PDFファイルへのパスを指定
           position={[0, 0, 0]}
           scale={1}

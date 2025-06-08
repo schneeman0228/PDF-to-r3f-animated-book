@@ -6,9 +6,12 @@ import { easing } from "maath";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as pdfjs from 'pdfjs-dist';
 
+//CDNに挑戦
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.31/build/pdf.worker.min.mjs`;
+
 //こいつを読み込むのに3時間くらいかかった気が。結局ローカル最強
 // 静的なパスを使用
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+//pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
 
 import {
   Bone,
