@@ -30,7 +30,7 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { pageAtom, pages } from "./UI";
 
 // PDFページをテクスチャに変換する関数
-const pdfPageToTexture = async (pdfPage, scale = 0.5) => {
+const pdfPageToTexture = async (pdfPage, scale = 1.5) => {
   const viewport = pdfPage.getViewport({ scale });
   const canvas = document.createElement('canvas');
   canvas.width = viewport.width;
