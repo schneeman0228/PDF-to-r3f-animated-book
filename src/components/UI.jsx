@@ -1,7 +1,6 @@
 import { atom, useAtom } from "jotai";
 import { useEffect } from "react";
 
-
 /*本文*/
 const pictures = [
   "DSC00680",
@@ -49,34 +48,55 @@ export const UI = () => {
   /*音（いらない）*/
   useEffect(() => {
     const audio = new Audio("/audios/page-flip-01a.mp3");
-    audio.play();
+    audio.play().catch(() => {
+      // 音声再生に失敗した場合は無視（ブラウザの自動再生ポリシー等）
+    });
   }, [page]);
 
   return (
     <>
-      <main className=" pointer-events-none select-none z-10 fixed  inset-0  flex justify-between flex-col">
-        <a className="pointer-events-auto mt-10 ml-10"></a>
-        <div className="w-full overflow-auto pointer-events-auto flex justify-center">
-          <div className="overflow-auto flex items-center gap-2 max-w-full p-5">
+      <main className="pointer-events-none select-none z-10 fixed inset-0 flex justify-between flex-col">
+        {/* 上部エリア（将来的に追加コンテンツ用） */}
+        <div className="pointer-events-auto mt-4 ml-4">
+          {/* 必要に応じて上部にコントロールを追加 */}
+        </div>
+        
+        {/* 下部のページナビゲーション */}
+        <div className="w-full pointer-events-auto flex justify-center pb-safe">
+          {/* モバイルでメニューと重ならないよう、レスポンシブな余白を設定 */}
+          <div className="
+            overflow-auto flex items-center gap-2 max-w-full p-3
+            mb-2 lg:mb-5
+            bg-black/20 backdrop-blur-sm rounded-full
+            border border-white/10
+          ">
             {[...pages].map((_, index) => (
               <button
                 key={index}
-                className={`border-transparent hover:border-white transition-all duration-300  px-4 py-3 rounded-full  text-lg uppercase shrink-0 border ${
-                  index === page
-                    ? "bg-white/90 text-black"
-                    : "bg-black/30 text-white"
-                }`}
+                className={`
+                  border-transparent hover:border-white transition-all duration-300
+                  px-3 py-2 lg:px-4 lg:py-3 rounded-full text-sm lg:text-lg
+                  uppercase shrink-0 border touch-target
+                  ${index === page
+                    ? "bg-white/90 text-black shadow-lg"
+                    : "bg-black/30 text-white hover:bg-black/50"
+                  }
+                `}
                 onClick={() => setPage(index)}
               >
                 {index === 0 ? "Cover" : `Page ${index}`}
               </button>
             ))}
             <button
-              className={`border-transparent hover:border-white transition-all duration-300  px-4 py-3 rounded-full  text-lg uppercase shrink-0 border ${
-                page === pages.length
-                  ? "bg-white/90 text-black"
-                  : "bg-black/30 text-white"
-              }`}
+              className={`
+                border-transparent hover:border-white transition-all duration-300
+                px-3 py-2 lg:px-4 lg:py-3 rounded-full text-sm lg:text-lg
+                uppercase shrink-0 border touch-target
+                ${page === pages.length
+                  ? "bg-white/90 text-black shadow-lg"
+                  : "bg-black/30 text-white hover:bg-black/50"
+                }
+              `}
               onClick={() => setPage(pages.length)}
             >
               Back Cover
@@ -84,9 +104,6 @@ export const UI = () => {
           </div>
         </div>
       </main>
-
-      
     </>
-    
   );
 };

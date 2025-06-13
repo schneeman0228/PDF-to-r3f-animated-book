@@ -15,16 +15,19 @@ body {
   font-weight: 400;
 }
 
-/* モバイルでの最適化 */
-@media (max-width: 1024px) {
-  /* モバイルではサイドメニューを下部に配置 */
+/* レスポンシブレイアウト */
+@media (max-width: 1023px) {
+  /* モバイル・タブレット: 縦並びレイアウト */
   .mobile-layout {
-    height: 60vh; /* メイン表示エリアは画面の60% */
+    height: 70vh; /* メイン表示エリアは画面の70% */
+    min-height: 400px; /* 最小高さを確保 */
   }
   
   .mobile-menu {
-    height: 40vh; /* メニューエリアは画面の40% */
-    max-height: 40vh;
+    height: 30vh; /* メニューエリアは画面の30% */
+    min-height: 200px; /* 最小高さを確保 */
+    max-height: 50vh; /* 最大高さを制限 */
+    border-top: 2px solid #374151;
   }
   
   /* タッチデバイス用のボタンサイズ調整 */
@@ -32,37 +35,47 @@ body {
     min-height: 44px;
     min-width: 44px;
   }
+  
+  /* モバイルでのスクロール改善 */
+  .mobile-menu {
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
-/* デスクトップでの最適化 */
-@media (min-width: 1025px) {
+@media (min-width: 1024px) {
+  /* デスクトップ: 横並びレイアウト */
   .desktop-layout {
     height: 100vh;
   }
   
   .desktop-menu {
-    width: 320px;
-    max-width: 320px;
+    width: 20rem; /* 320px */
+    max-width: 25rem; /* 400px */
+    min-width: 18rem; /* 288px */
+    height: 100vh;
+    border-left: 2px solid #374151;
   }
 }
 
-/* スクロールバーのスタイリング */
+/* カスタムスクロールバー */
 .custom-scrollbar {
   scrollbar-width: thin;
   scrollbar-color: #4B5563 #1F2937;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
   background: #1F2937;
+  border-radius: 4px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #4B5563;
-  border-radius: 3px;
+  border-radius: 4px;
+  border: 1px solid #1F2937;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -70,12 +83,121 @@ body {
 }
 
 /* フォーカス表示の改善 */
-button:focus-visible {
+button:focus-visible,
+input:focus-visible {
   outline: 2px solid #3B82F6;
   outline-offset: 2px;
 }
 
-input:focus-visible {
-  outline: 2px solid #3B82F6;
-  outline-offset: 2px;
+/* アニメーション効果 */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* ファイル入力のカスタムスタイル */
+input[type="file"] {
+  cursor: pointer;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+  cursor: pointer;
+}
+
+/* ローディング効果 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 上部UIの調整 */
+.pointer-events-none {
+  pointer-events: none;
+}
+
+.pointer-events-auto {
+  pointer-events: auto;
+}
+
+/* サイドメニューの境界線 */
+@media (min-width: 1024px) {
+  .desktop-menu::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, #374151 20%, #374151 80%, transparent);
+  }
+}
+
+/* モバイルメニューの境界線 */
+@media (max-width: 1023px) {
+  .mobile-menu::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #374151 20%, #374151 80%, transparent);
+  }
+}
+
+/* メニューの影効果 */
+@media (min-width: 1024px) {
+  .desktop-menu {
+    box-shadow: -4px 0 6px -1px rgba(0, 0, 0, 0.1), -2px 0 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+@media (max-width: 1023px) {
+  .mobile-menu {
+    box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1), 0 -2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+}
+
+/* 状態メッセージのスタイル */
+.status-message {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ボタンのホバー効果強化 */
+button {
+  transition: all 0.2s ease-in-out;
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 3D表示エリアのスタイル */
+canvas {
+  background: radial-gradient(ellipse at center, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* アクセシビリティ向上 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

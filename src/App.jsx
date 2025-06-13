@@ -26,55 +26,90 @@ function App() {
   };
 
   return (
-    <>
-      {/* PDFが読み込まれている時のみUIを表示 */}
-      {pdfUrl && <UI />}
-      
-      {/* アップローダーの表示/非表示切り替えボタン */}
-      <button
-        onClick={toggleUploader}
-        className="fixed top-4 right-4 z-50 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg"
-      >
-        {showUploader ? 'アップローダーを閉じる' : 'PDFを読み込む'}
-      </button>
+    <div className="h-screen w-screen flex flex-col lg:flex-row bg-gray-100">
+      {/* メイン3D表示エリア */}
+      <div className="flex-1 relative mobile-layout lg:desktop-layout">
+        {/* PDFが読み込まれている時のみUIを表示 */}
+        {pdfUrl && <UI />}
+        
+        <Loader />
+        
+        <Canvas shadows camera={{ position: [-0.5, 1, 4], fov: 45 }}>
+          <group position-y={0}>
+            <Suspense fallback={null}>
+              <Experience 
+                pdfUrl={pdfUrl}
+                coverPdfUrl={coverPdfUrl}
+              />
+            </Suspense>
+          </group>
+        </Canvas>
 
-      {/* PDFアップローダー */}
-      {showUploader && (
-        <PDFUploader 
-          onPDFLoad={handlePDFLoad}
-          onCoverPDFLoad={handleCoverPDFLoad}
-        />
-      )}
+        {/* PDFが読み込まれていない時の案内（3D表示エリア上にオーバーレイ） */}
+        {!pdfUrl && (
+          <div className="absolute inset-0 z-40 flex items-center justify-center bg-black/50 pointer-events-none">
+            <div className="text-white text-center pointer-events-auto">
+              <h1 className="text-4xl font-bold mb-4">PDF Book Viewer</h1>
+              <p className="text-lg mb-6">PDFファイルを読み込んで3D本として表示します</p>
+              <button
+                onClick={() => setShowUploader(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg"
+              >
+                PDFを選択
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
 
-      <Loader />
-      
-      <Canvas shadows camera={{ position: [-0.5, 1, 4], fov: 45 }}>
-        <group position-y={0}>
-          <Suspense fallback={null}>
-            <Experience 
-              pdfUrl={pdfUrl}
-              coverPdfUrl={coverPdfUrl}
-            />
-          </Suspense>
-        </group>
-      </Canvas>
+      {/* サイドメニュー/ボトムメニューエリア */}
+      <div className={`
+        bg-gray-900 text-white
+        lg:w-80 lg:h-full lg:flex-shrink-0
+        w-full mobile-menu lg:desktop-menu
+        flex flex-col
+        custom-scrollbar overflow-y-auto
+        ${showUploader ? 'block' : 'hidden lg:block'}
+      `}>
+        {/* メニューヘッダー */}
+        <div className="p-4 border-b border-gray-700 flex items-center justify-between">
+          <h2 className="text-xl font-bold">PDF Book Controls</h2>
+          <button
+            onClick={toggleUploader}
+            className="lg:hidden bg-gray-700 hover:bg-gray-600 text-white p-2 rounded-lg"
+          >
+            {showUploader ? '✕' : '☰'}
+          </button>
+        </div>
 
-      {/* PDFが読み込まれていない時の案内 */}
-      {!pdfUrl && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 pointer-events-none">
-          <div className="text-white text-center pointer-events-auto">
-            <h1 className="text-4xl font-bold mb-4">PDF Book Viewer</h1>
-            <p className="text-lg mb-6">PDFファイルを読み込んで3D本として表示します</p>
-            <button
-              onClick={() => setShowUploader(true)}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg"
-            >
-              PDFを選択
-            </button>
+        {/* PDFアップローダー */}
+        <div className="flex-1 p-4">
+          <PDFUploader 
+            onPDFLoad={handlePDFLoad}
+            onCoverPDFLoad={handleCoverPDFLoad}
+          />
+        </div>
+
+        {/* 追加情報エリア（必要に応じて） */}
+        <div className="p-4 border-t border-gray-700">
+          <div className="text-sm text-gray-400">
+            <p>📖 3D本としてPDFを表示</p>
+            <p>🎨 表紙PDFで装丁をカスタマイズ</p>
+            <p>📱 モバイル/デスクトップ対応</p>
           </div>
         </div>
+      </div>
+
+      {/* モバイル用トグルボタン（PDFロード後） */}
+      {pdfUrl && (
+        <button
+          onClick={toggleUploader}
+          className="lg:hidden fixed bottom-4 right-4 z-50 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg touch-target"
+        >
+          {showUploader ? '✕' : '⚙️'}
+        </button>
       )}
-    </>
+    </div>
   );
 }
 
