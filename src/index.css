@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,12 +7,75 @@
   width: 100vw;
   height: 100vh;
   background: radial-gradient(#ffffff, #9b9b9b 80%);
+  font-family: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
+  font-weight: 400;
 }
 
-.outline-text {
-  -webkit-text-stroke: 1px white;
+/* モバイルでの最適化 */
+@media (max-width: 1024px) {
+  /* モバイルではサイドメニューを下部に配置 */
+  .mobile-layout {
+    height: 60vh; /* メイン表示エリアは画面の60% */
+  }
+  
+  .mobile-menu {
+    height: 40vh; /* メニューエリアは画面の40% */
+    max-height: 40vh;
+  }
+  
+  /* タッチデバイス用のボタンサイズ調整 */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* デスクトップでの最適化 */
+@media (min-width: 1025px) {
+  .desktop-layout {
+    height: 100vh;
+  }
+  
+  .desktop-menu {
+    width: 320px;
+    max-width: 320px;
+  }
+}
+
+/* スクロールバーのスタイリング */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #4B5563 #1F2937;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #1F2937;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #4B5563;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #6B7280;
+}
+
+/* フォーカス表示の改善 */
+button:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+input:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
 }

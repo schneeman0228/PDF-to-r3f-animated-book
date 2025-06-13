@@ -90,7 +90,7 @@ export const PDFUploader = ({ onPDFLoad, onCoverPDFLoad }) => {
       
       {/* ローカルファイル読み込み */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">ローカルファイル</h3>
+
         <div className="space-y-3">
           <div>
             <label className="block text-sm font-medium mb-1">
@@ -120,62 +120,8 @@ export const PDFUploader = ({ onPDFLoad, onCoverPDFLoad }) => {
         </div>
       </div>
 
-      {/* URL入力 */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">URLから読み込み</h3>
-        <form onSubmit={handleUrlSubmit} className="space-y-3">
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              メインPDF URL <span className="text-red-400">*</span>
-            </label>
-            <input
-              name="url"
-              type="url"
-              placeholder="https://example.com/document.pdf"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-blue-500 focus:outline-none"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              表紙PDF URL <span className="text-gray-400">(オプション)</span>
-            </label>
-            <input
-              name="coverUrl"
-              type="url"
-              placeholder="https://example.com/cover.pdf"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded text-white focus:border-green-500 focus:outline-none"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white py-2 px-4 rounded transition-colors"
-          >
-            {loading ? '読み込み中...' : 'URLから読み込み'}
-          </button>
-        </form>
-        
-        {/* サンプルURL設定ボタン */}
-        <div className="mt-3 space-y-2">
-          <p className="text-xs text-gray-400">サンプルURL:</p>
-          <button
-            type="button"
-            onClick={() => {
-              const form = document.querySelector('form');
-              form.url.value = "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf";
-              form.coverUrl.value = "";
-            }}
-            className="w-full text-sm bg-gray-700 hover:bg-gray-600 text-white py-1 px-2 rounded transition-colors"
-          >
-            Mozilla PDF.js サンプルを設定
-          </button>
-        </div>
-      </div>
-
       {/* サンプルPDF */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold mb-2">サンプル</h3>
         <button
           onClick={() => {
             const sampleUrl = "https://mozilla.github.io/pdf.js/web/compressed.tracemonkey-pldi-09.pdf";
