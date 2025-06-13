@@ -1,0 +1,75 @@
+# GitHub Actionsワークフローの名前（Actions画面で表示される名前）
+name: Deploy to GitHub Pages
+
+# このワークフローがいつ実行されるかを定義
+on:
+  push:
+    branches: [ main ]  # mainブランチにプッシュされたときに実行
+  pull_request:
+    branches: [ main ]  # mainブランチへのプルリクエストでも実行（テスト用）
+
+# GitHub Pagesにデプロイするために必要な権限を設定
+permissions:
+  contents: read      # リポジトリの内容を読み取る権限
+  pages: write        # GitHub Pagesに書き込む権限
+  id-token: write     # OpenID Connectトークンを書き込む権限（セキュリティ用）
+
+# 複数のワークフローが同時に実行されないよう制御
+concurrency:
+  group: "pages"                 # "pages"グループで同時実行を制御
+  cancel-in-progress: false      # 実行中のワークフローはキャンセルしない
+
+jobs:
+  # ========================================
+  # ビルドジョブ：プロジェクトをビルドする
+  # ========================================
+  build:
+    runs-on: ubuntu-latest  # Ubuntu環境で実行
+    steps:
+      # ステップ1: ソースコードをチェックアウト（ダウンロード）
+      - name: Checkout
+        uses: actions/checkout@v4  # GitHubが提供する公式アクション
+
+      # ステップ2: Node.jsの環境をセットアップ
+      - name: Setup Node.js
+        uses: actions/setup-node@v4  # Node.js環境を準備する公式アクション
+        with:
+          node-version: '18'    # Node.js バージョン18を使用
+          cache: 'npm'          # npmキャッシュを有効化（高速化のため）
+
+      # ステップ3: 依存関係をインストール
+      - name: Install dependencies
+        run: npm ci  # package-lock.jsonに基づいて正確にインストール
+
+      # ステップ4: Reactアプリをビルド
+      - name: Build
+        run: npm run build  # package.jsonのbuildスクリプトを実行（Viteビルド）
+
+      # ステップ5: GitHub Pages用の設定を準備
+      - name: Setup Pages
+        uses: actions/configure-pages@v4  # Pages設定を自動構成
+
+      # ステップ6: ビルド成果物をアップロード
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3  # ビルド結果をアップロード
+        with:
+          path: './dist'  # Viteがビルド結果を出力するディレクトリ
+
+  # ========================================
+  # デプロイジョブ：ビルド結果をGitHub Pagesに公開
+  # ========================================
+  deploy:
+    # デプロイ環境の設定
+    environment:
+      name: github-pages                          # 環境名
+      url: ${{ steps.deployment.outputs.page_url }}  # デプロイ後のURL
+
+    runs-on: ubuntu-latest  # Ubuntu環境で実行
+    needs: build            # buildジョブが成功してから実行
+    if: github.ref == 'refs/heads/main'  # mainブランチの場合のみデプロイ実行
+
+    steps:
+      # ステップ1: GitHub Pagesにデプロイを実行
+      - name: Deploy to GitHub Pages
+        id: deployment                    # このステップにIDを付けて結果を参照可能にする
+        uses: actions/deploy-pages@v4     # GitHub Pages公式デプロイアクション
