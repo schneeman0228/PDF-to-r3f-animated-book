@@ -150,34 +150,6 @@ export const PDFUploader = ({ onPDFLoad, onCoverPDFLoad }) => {
 
       {(pdfUrl || coverPdfUrl) && (
         <div className="mb-4 p-3 bg-green-900/30 border border-green-700/50 rounded">
-          <div className="flex items-center mb-2">
-            <svg className="w-5 h-5 mr-2 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            <span className="text-green-400 font-medium">PDF読み込み完了</span>
-          </div>
-          <div className="space-y-1 text-sm">
-            {pdfUrl && (
-              <div className="flex items-center">
-                <span className="text-blue-400 mr-2">📄</span>
-                <span className="text-gray-300">メインPDF: </span>
-                <span className="text-green-400 ml-1">読み込み済み</span>
-              </div>
-            )}
-            {coverPdfUrl && (
-              <div className="flex items-center">
-                <span className="text-green-400 mr-2">🎨</span>
-                <span className="text-gray-300">表紙PDF: </span>
-                <span className="text-green-400 ml-1">読み込み済み</span>
-              </div>
-            )}
-          </div>
-          <button
-            onClick={clearFiles}
-            className="mt-3 text-sm bg-red-600 hover:bg-red-700 text-white py-2 px-3 rounded transition-colors"
-          >
-            すべてクリア
-          </button>
         </div>
       )}
 
