@@ -2,7 +2,7 @@ import { Environment, Float, OrbitControls, Text } from "@react-three/drei";
 import { useState } from "react";
 import { PDFBook } from "./Book_novel";
 
-export const Experience = ({ pdfUrl, coverPdfUrl }) => {
+export const Experience = ({ pdfUrl, CoverPdfUrl }) => {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState(null);
 
@@ -29,7 +29,7 @@ export const Experience = ({ pdfUrl, coverPdfUrl }) => {
       {pdfUrl && !pdfError && (
         <PDFBook 
           pdfUrl={pdfUrl}
-          coverPdfUrl={coverPdfUrl} // プロパティ名を統一
+          CoverPdfUrl={CoverPdfUrl} // プロパティ名を統一
           position={[0, 0, 0]}
           scale={1}
           onLoadStart={handlePDFLoadStart}

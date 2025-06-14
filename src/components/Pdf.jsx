@@ -33,19 +33,6 @@ export const PDFUploader = ({ onPDFLoad, onCoverPDFLoad }) => {
     const url = event.target.url.value.trim();
     const coverUrl = event.target.coverUrl.value.trim();
     
-    // メインPDFのバリデーション
-    if (!url) {
-      setError('メインPDF URLを入力してください');
-      setLoading(false);
-      return;
-    }
-    
-    if (!url.includes('.pdf')) {
-      setError('有効なPDF URLを入力してください');
-      setLoading(false);
-      return;
-    }
-
     // メインPDFの設定
     setPdfUrl(url);
     onPDFLoad(url);

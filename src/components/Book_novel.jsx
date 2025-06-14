@@ -89,7 +89,7 @@ const usePDFPages = (pdfUrl) => {
 };
 
 // 表紙用：　PDFページを分割してテクスチャに変換する関数
-const splitPDFPageToTextures = async (pdfPage, scale = 2) => {
+const splitPDFPageToTextures = async (pdfPage, scale = 1) => {
   const viewport = pdfPage.getViewport({ scale });
   
   // 元のキャンバスを作成
