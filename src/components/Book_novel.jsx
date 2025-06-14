@@ -9,8 +9,6 @@ import * as pdfjs from 'pdfjs-dist';
 //CDNに挑戦
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.31/build/pdf.worker.min.mjs`;
 
-//pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.3.31/pdf.worker.min.js`;
-
 import {
   Bone,
   BoxGeometry,
@@ -28,27 +26,40 @@ import { degToRad } from "three/src/math/MathUtils.js";
 import { pageAtom, pages } from "./UI";
 
 // PDFページをテクスチャに変換する関数
+// 元の pdfPageToTexture 関数を以下に置き換え
 const pdfPageToTexture = async (pdfPage, scale = 1.0) => {
   const viewport = pdfPage.getViewport({ scale });
+  
+  // テクスチャサイズを制限
+  const maxSize = 1024;
+  const actualScale = Math.min(scale, maxSize / Math.max(viewport.width, viewport.height));
+  const finalViewport = pdfPage.getViewport({ scale: actualScale });
+  
   const canvas = document.createElement('canvas');
-  canvas.width = viewport.width;
-  canvas.height = viewport.height;
+  canvas.width = finalViewport.width;
+  canvas.height = finalViewport.height;
   
   const context = canvas.getContext('2d');
   const renderContext = {
     canvasContext: context,
-    viewport: viewport
+    viewport: finalViewport
   };
 
   await pdfPage.render(renderContext).promise;
   
-  // ページ番号を追加
+  // 本にページ番号を描写（参考用）
   context.fillStyle = 'red';
-  context.font = '100px Arial';
+  context.font = `${Math.min(60, finalViewport.height * 0.1)}px Arial`; // フォントサイズは画面サイズによって変化
   context.fillText(`Page ${pdfPage.pageNumber}`, 50, 100);
   
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;
+  // ミップマップ無効化でパフォーマンス向上
+  texture.generateMipmaps = false;
+
+  //入れると本が表示されない
+  //texture.minFilter = THREE.LinearFilter;
+  //texture.magFilter = THREE.LinearFilter;
   return texture;
 };
 
@@ -89,6 +100,11 @@ const usePDFPages = (pdfUrl) => {
 // 表紙用：　PDFページを分割してテクスチャに変換する関数
 const splitPDFPageToTextures = async (pdfPage, scale = 1) => {
   const viewport = pdfPage.getViewport({ scale });
+  
+  // テクスチャサイズ制限を追加
+  const maxSize = 1024;
+  const actualScale = Math.min(scale, maxSize / Math.max(viewport.width, viewport.height));
+  const finalViewport = pdfPage.getViewport({ scale: actualScale });
   
   // 元のキャンバスを作成
   const originalCanvas = document.createElement('canvas');
@@ -190,7 +206,7 @@ const turningCurveStrength = 0.09; // Controls the strength of the curve　???
 const PAGE_WIDTH = 1.28;
 const PAGE_HEIGHT = 1.71; // 4:3 aspect ratio
 const PAGE_DEPTH = 0.001;
-const PAGE_SEGMENTS = 40;//セグメント数なのだが開き具合？
+const PAGE_SEGMENTS = 30;//セグメント数なのだが開き具合？
 const SEGMENT_WIDTH = PAGE_WIDTH / PAGE_SEGMENTS;
 
 const pageGeometry = new BoxGeometry(
@@ -358,7 +374,7 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
     const mesh = new SkinnedMesh(pageGeometry, materials);
     mesh.castShadow = true;
     mesh.receiveShadow = true;
-    mesh.frustumCulled = false;
+    mesh.frustumCulled = true;
     mesh.add(skeleton.bones[0]);
     mesh.bind(skeleton);
     return mesh;
@@ -369,6 +385,16 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
     if (!skinnedMeshRef.current) {
       return;
     }
+
+    // フレーム制限を追加（既存コードの前に）
+  const currentTime = performance.now();
+  if (!skinnedMeshRef.current.lastUpdate) {
+    skinnedMeshRef.current.lastUpdate = 0;
+  }
+  if (currentTime - skinnedMeshRef.current.lastUpdate < 16) { // 60fps制限
+    return;
+  }
+  skinnedMeshRef.current.lastUpdate = currentTime;
 
     const emissiveIntensity = highlighted ? 0.22 : 0;
     skinnedMeshRef.current.material[4].emissiveIntensity =
@@ -524,7 +550,14 @@ export const PDFBook = ({ pdfUrl, CoverpdfUrl, ...props }) => {
   }
 
   // 実際のページ数は textures.length - 1 になる（最後のページは裏面として使用）
-  const pageCount = Math.floor((textures.length ));
+  const totalPages = Math.floor(textures.length / 2) + 2;
+  
+  // ★★★ 重要：表示ページ数を制限 ★★★
+  const renderRange = 2; // 現在のページ±2ページのみ表示
+  const startPage = Math.max(0, delayedPage - renderRange);
+  const endPage = Math.min(totalPages, delayedPage + renderRange + 1);
+  
+  console.log(`Rendering pages ${startPage} to ${endPage} (current: ${delayedPage})`);
   
   return (
     <group {...props} rotation-y={-Math.PI / 2}>

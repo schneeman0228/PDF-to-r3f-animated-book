@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { PDFBook } from "./Book_novel";
 
 export const Experience = ({ pdfUrl, CoverPdfUrl }) => {
+
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState(null);
 
@@ -133,7 +134,9 @@ export const Experience = ({ pdfUrl, CoverPdfUrl }) => {
         </group>
       )}
 
-      <OrbitControls />
+      <OrbitControls 
+        enableDamping={false} // ダンピング無効化
+       />
       <Environment preset="studio" />
       
       <directionalLight

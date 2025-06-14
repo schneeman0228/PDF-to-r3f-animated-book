@@ -41,8 +41,19 @@ function App() {
         
         <Loader />
         
-        <Canvas shadows camera={{ position: [-0.5, 1, 4], fov: 45 }}>
-          <group position-y={0}>
+        <Canvas 
+          shadows 
+          camera={
+            { position: [-0.5, 1, 4], fov: 45 }
+            }
+          style={{ width: '300px', height: '400px' }}
+          gl={{
+            antialias: false,  // アンチエイリアス無効化
+            powerPreference: "high-performance",
+            pixelRatio: Math.min(window.devicePixelRatio, 1) // ピクセル比制限
+            }}
+        >
+            <group position-y={0}>
             <Suspense fallback={null}>
               <Experience 
                 pdfUrl={pdfUrl}
