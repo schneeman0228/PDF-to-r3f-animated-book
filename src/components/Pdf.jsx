@@ -72,7 +72,7 @@ export const PDFUploader = ({ onPDFLoad, onCoverPDFLoad }) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 z-50 bg-black/90 text-white p-6 rounded-lg m-4 max-w-md">
+    <div className="fixed top-0 left-0 z-50 bg-black/50 text-white p-6 rounded-lg m-4 max-w-md">
       <h2 className="text-xl font-bold mb-4">PDFブックを読み込む</h2>
       
       {/* ローカルファイル読み込み */}
