@@ -9,6 +9,10 @@ import * as pdfjs from 'pdfjs-dist';
 //CDNに挑戦
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.31/build/pdf.worker.min.mjs`;
 
+//こいつを読み込むのに3時間くらいかかった気が。結局ローカル最強
+// 静的なパスを使用
+//pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+
 import {
   Bone,
   BoxGeometry,
@@ -53,29 +57,19 @@ const pdfPageToTexture = async (pdfPage, scale = 1.0) => {
 // PDFローダーフック
 const usePDFPages = (pdfUrl) => {
   const [textures, setTextures] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!pdfUrl) {
-      setTextures([]);
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
     const loadPDF = async () => {
-      setLoading(true);
-      setError(null);
-      
       try {
-        console.log("Loading PDF:", pdfUrl);
         const pdf = await pdfjs.getDocument(pdfUrl).promise;
         const pageTextures = [];
         
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const texture = await pdfPageToTexture(page);
+          //コンソールに読み込み状況を表示
           pageTextures.push(texture);
           console.log(`Loading page ${i}, index: ${i-1}`);
         }
@@ -83,7 +77,6 @@ const usePDFPages = (pdfUrl) => {
         setTextures(pageTextures);
         setLoading(false);
       } catch (err) {
-        console.error("PDF loading error:", err);
         setError(err);
         setLoading(false);
       }
@@ -154,23 +147,12 @@ const splitPDFPageToTextures = async (pdfPage, scale = 2) => {
 // 表紙用：　PDFカバーローダーフック
 const usePDFCover = (coverPdfUrl) => {
   const [coverTextures, setCoverTextures] = useState({ front: null, back: null });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!coverPdfUrl) {
-      setCoverTextures({ front: null, back: null });
-      setLoading(false);
-      setError(null);
-      return;
-    }
-
     const loadCoverPDF = async () => {
-      setLoading(true);
-      setError(null);
-      
       try {
-        console.log("Loading cover PDF:", coverPdfUrl);
         const pdf = await pdfjs.getDocument(coverPdfUrl).promise;
         // 最初のページのみを読み込み
         const page = await pdf.getPage(1);
@@ -181,31 +163,36 @@ const usePDFCover = (coverPdfUrl) => {
           back: backTexture
         });
         setLoading(false);
-        console.log('Cover Loading complete');
       } catch (err) {
         console.error("Error loading cover PDF:", err);
         setError(err);
         setLoading(false);
       }
+
+      //コンソールに読み込み状況を表示
+      console.log('Cover Loading');
     };
 
-    loadCoverPDF();
+    if (coverPdfUrl) {
+      loadCoverPDF();
+    }
   }, [coverPdfUrl]);
 
   return { coverTextures, loading, error };
 };
 
+
 //モデルのパラメータ
-const easingFactor = 0.5;
-const easingFactorFold = 0.4;
-const insideCurveStrength = 0.18;
-const outsideCurveStrength = 0.01;
-const turningCurveStrength = 0.09;
+const easingFactor = 0.5; // Controls the speed of the easing
+const easingFactorFold = 0.4; // Controls the speed of the easing 開き具合
+const insideCurveStrength = 0.18; // Controls the strength of the curve
+const outsideCurveStrength = 0.01; // Controls the strength of the curve 手で持った時の曲がり具合
+const turningCurveStrength = 0.09; // Controls the strength of the curve　???
 
 const PAGE_WIDTH = 1.28;
-const PAGE_HEIGHT = 1.71;
+const PAGE_HEIGHT = 1.71; // 4:3 aspect ratio
 const PAGE_DEPTH = 0.001;
-const PAGE_SEGMENTS = 40;
+const PAGE_SEGMENTS = 40;//セグメント数なのだが開き具合？
 const SEGMENT_WIDTH = PAGE_WIDTH / PAGE_SEGMENTS;
 
 const pageGeometry = new BoxGeometry(
@@ -216,6 +203,7 @@ const pageGeometry = new BoxGeometry(
   2
 );
 
+/*元のコードのまま*/
 pageGeometry.translate(PAGE_WIDTH / 2, 0, 0);
 
 const position = pageGeometry.attributes.position;
@@ -224,16 +212,20 @@ const skinIndexes = [];
 const skinWeights = [];
 
 for (let i = 0; i < position.count; i++) {
-  vertex.fromBufferAttribute(position, i);
-  const x = vertex.x;
+  // ALL VERTICES
+  vertex.fromBufferAttribute(position, i); // get the vertex
+  const x = vertex.x; // get the x position of the vertex
 
+  // スキンインデックスの計算（どのボーンが影響するか）
   const skinIndex = Math.max(0, Math.floor(x / SEGMENT_WIDTH));
-  let skinWeight = (x % SEGMENT_WIDTH) / SEGMENT_WIDTH;
+  // スキンウェイトの計算（各ボーンの影響度）
+  let skinWeight = (x % SEGMENT_WIDTH) / SEGMENT_WIDTH; // calculate the skin weight
 
-  skinIndexes.push(skinIndex, skinIndex + 1, 0, 0);
-  skinWeights.push(1 - skinWeight, skinWeight, 0, 0);
+  skinIndexes.push(skinIndex, skinIndex + 1, 0, 0); // set the skin indexes
+  skinWeights.push(1 - skinWeight, skinWeight, 0, 0); // set the skin weights
 }
 
+// スキニング情報をジオメトリに追加
 pageGeometry.setAttribute(
   "skinIndex",
   new Uint16BufferAttribute(skinIndexes, 4)
@@ -247,6 +239,7 @@ const whiteColor = new Color("white");
 const emissiveColor = new Color("orange");
 
 //側面用
+//小口染め用
 const sideColor = new Color("#c9b592");
 const pageMaterials = [  
   new MeshStandardMaterial({
@@ -272,7 +265,9 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
   const lastOpened = useRef(opened);
   const skinnedMeshRef = useRef();
 
+  // geometry は既存のものを使用
   const manualSkinnedMesh = useMemo(() => {
+    // ボーンの作成
     const bones = [];
     for (let i = 0; i <= PAGE_SEGMENTS; i++) {
       let bone = new Bone();
@@ -288,6 +283,7 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
     }
     const skeleton = new Skeleton(bones);
 
+    // 表裏のマテリアル設定
     // マテリアルの設定
     let materials;
     
@@ -298,6 +294,7 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
         // 裏面（1ページ目）
         new MeshStandardMaterial({
           color: whiteColor,
+          //map: textures[5],
           roughness: 0.1,
           metalness: 0.01,
           emissive: emissiveColor,
@@ -313,7 +310,7 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
           emissiveIntensity: 0,
         }),
       ];
-    } else if (number === Math.floor(textures.length/2)+1) {
+    } else if (number === textures.length/2+1) {
       // 背表紙のマテリアル
       materials = [
         ...pageMaterials,//側面
@@ -329,13 +326,14 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
         // 表面（最終ページ）
         new MeshStandardMaterial({
           color: whiteColor,
+          //map: textures[0],
           roughness: 0.1,
           metalness: 0.01,
           emissive: emissiveColor,
           emissiveIntensity: 0,
         }),
       ];
-    } else if (number <= Math.floor(textures.length/2)) {
+    } else if (number <= textures.length) {
       // 通常ページのマテリアル
       const pageColor = new Color("#c9b592");
       materials = [
@@ -343,7 +341,7 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
         // 裏面
         new MeshStandardMaterial({
           color: pageColor,
-          map: textures[number*2-1] || null,
+          map: textures[number*2-1],
           roughness: 1,
           emissive: emissiveColor,
           emissiveIntensity: 0,
@@ -351,15 +349,12 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
         // 表面
         new MeshStandardMaterial({
           color: pageColor,
-          map: textures[number*2-2] || null,
+          map: textures[number*2-2],
           roughness: 1,
           emissive: emissiveColor,
           emissiveIntensity: 0,
         }),
       ];
-    } else {
-      // フォールバックマテリアル
-      materials = pageMaterials;
     }
 
     const mesh = new SkinnedMesh(pageGeometry, materials);
@@ -371,26 +366,19 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
     return mesh;
   }, [number, textures, coverTextures]);
 
+  // アニメーションロジックは既存のまま
   useFrame((_, delta) => {
     if (!skinnedMeshRef.current) {
       return;
     }
 
     const emissiveIntensity = highlighted ? 0.22 : 0;
-    if (skinnedMeshRef.current.material[4]) {
-      skinnedMeshRef.current.material[4].emissiveIntensity = MathUtils.lerp(
+    skinnedMeshRef.current.material[4].emissiveIntensity =
+      skinnedMeshRef.current.material[5].emissiveIntensity = MathUtils.lerp(
         skinnedMeshRef.current.material[4].emissiveIntensity,
         emissiveIntensity,
         0.1
       );
-    }
-    if (skinnedMeshRef.current.material[5]) {
-      skinnedMeshRef.current.material[5].emissiveIntensity = MathUtils.lerp(
-        skinnedMeshRef.current.material[5].emissiveIntensity,
-        emissiveIntensity,
-        0.1
-      );
-    }
 
     if (lastOpened.current !== opened) {
       turnedAt.current = +new Date();
@@ -399,9 +387,10 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
     let turningTime = Math.min(400, new Date() - turnedAt.current) / 400;
     turningTime = Math.sin(turningTime * Math.PI);
 
+    // 右とじ用に回転方向を反転
     let targetRotation = opened ? Math.PI / 2 : -Math.PI / 2;
     if (!bookClosed) {
-      targetRotation += degToRad(number * -0.8);
+      targetRotation += degToRad(number * -0.8); // 角度も反転
     }    
 
     const bones = skinnedMeshRef.current.skeleton.bones;
@@ -479,31 +468,16 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
   );
 };
 
+
 // メインのブックコンポーネント
-export const PDFBook = ({ pdfUrl, coverPdfUrl, onLoadStart, onLoadComplete, onError, ...props }) => {
+export const PDFBook = ({ pdfUrl, coverpdfUrl, ...props }) => {
   const [page] = useAtom(pageAtom);
   const [delayedPage, setDelayedPage] = useState(page);
   
-  const { coverTextures, loading: coverLoading, error: coverError } = usePDFCover(coverPdfUrl);
+  //表紙用
+  const { coverTextures, loading: coverLoading, error: coverError } = usePDFCover(coverpdfUrl);
+  
   const { textures, loading, error } = usePDFPages(pdfUrl);
-
-  // ローディング状態の変更を親コンポーネントに通知
-  useEffect(() => {
-    const isLoading = loading || coverLoading;
-    if (isLoading) {
-      onLoadStart?.();
-    } else {
-      onLoadComplete?.();
-    }
-  }, [loading, coverLoading, onLoadStart, onLoadComplete]);
-
-  // エラー状態の変更を親コンポーネントに通知
-  useEffect(() => {
-    const hasError = error || coverError;
-    if (hasError) {
-      onError?.(hasError);
-    }
-  }, [error, coverError, onError]);
 
   useEffect(() => {
     let timeout;
@@ -533,31 +507,39 @@ export const PDFBook = ({ pdfUrl, coverPdfUrl, onLoadStart, onLoadComplete, onEr
     };
   }, [page]);
 
+  if (loading) {
+    return null; // またはローディングインジケータ
+  }
+
+  if (error) {
+    console.error("PDF loading error:", error);
+    return null; // またはエラーメッセージ
+  }
+
   if (loading || coverLoading) {
-    return null; // ローディング中は何も描画しない
+    return null;
   }
 
   if (error || coverError) {
-    return null; // エラー中は何も描画しない
+    console.error("PDF loading error:", error || coverError);
+    return null;
   }
 
-  if (!textures || textures.length === 0) {
-    return null; // テクスチャがない場合は何も描画しない
-  }
-
-  const totalPages = Math.floor(textures.length / 2) + 2; // 表紙と裏表紙を含む
+  // 実際のページ数は textures.length - 1 になる（最後のページは裏面として使用）
+  const pageCount = Math.floor((textures.length ));
   
   return (
     <group {...props} rotation-y={-Math.PI / 2}>
-      {Array.from({ length: totalPages }, (_, i) => (
+      {Array.from({ length: (textures.length/2)+2 }, (_, i) => (
+        //{[...textures].map((pageData, i) => (
         <Page
           key={i}
           page={delayedPage}
           number={i}
           textures={textures}
-          coverTextures={coverTextures}
+          coverTextures={coverTextures}  // 表紙テクスチャを渡す
           opened={delayedPage > i}
-          bookClosed={delayedPage === 0 || delayedPage === totalPages - 1}
+          bookClosed={delayedPage === 0 || delayedPage === textures.length/2+2}
         />
       ))}
     </group>
