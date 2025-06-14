@@ -1,6 +1,6 @@
 import { Loader } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
 import { PDFUploader } from "./components/Pdf";
@@ -10,7 +10,13 @@ function App() {
   const [CoverPdfUrl, setCoverPdfUrl] = useState(null);
   const [showUploader, setShowUploader] = useState(true);
 
+  // デバッグ用のログ
+  useEffect(() => {
+    console.log('App state updated:', { pdfUrl, CoverPdfUrl, showUploader });
+  }, [pdfUrl, CoverPdfUrl, showUploader]);
+
   const handlePDFLoad = (url) => {
+    console.log('App: PDF loaded:', url);
     setPdfUrl(url);
     if (url) {
       setShowUploader(false); // PDFが読み込まれたらアップローダーを非表示
@@ -18,6 +24,7 @@ function App() {
   };
 
   const handleCoverPDFLoad = (url) => {
+    console.log('App: Cover PDF loaded:', url);
     setCoverPdfUrl(url);
   };
 
@@ -81,7 +88,6 @@ function App() {
             onCoverPDFLoad={handleCoverPDFLoad}
           />
         </div>
-
       </div>
 
       {/* モバイル用トグルボタン（PDFロード後） */}
