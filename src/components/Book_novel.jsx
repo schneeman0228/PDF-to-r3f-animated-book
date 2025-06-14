@@ -9,9 +9,6 @@ import * as pdfjs from 'pdfjs-dist';
 //CDNに挑戦
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.3.31/build/pdf.worker.min.mjs`;
 
-//こいつを読み込むのに3時間くらいかかった気が。結局ローカル最強
-// 静的なパスを使用
-//pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
 
 import {
   Bone,
@@ -145,7 +142,7 @@ const splitPDFPageToTextures = async (pdfPage, scale = 1) => {
 };
 
 // 表紙用：　PDFカバーローダーフック
-const usePDFCover = (coverPdfUrl) => {
+const usePDFCover = (CoverPdfUrl) => {
   const [coverTextures, setCoverTextures] = useState({ front: null, back: null });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -153,7 +150,7 @@ const usePDFCover = (coverPdfUrl) => {
   useEffect(() => {
     const loadCoverPDF = async () => {
       try {
-        const pdf = await pdfjs.getDocument(coverPdfUrl).promise;
+        const pdf = await pdfjs.getDocument(CoverPdfUrl).promise;
         // 最初のページのみを読み込み
         const page = await pdf.getPage(1);
         const { frontTexture, backTexture } = await splitPDFPageToTextures(page);
@@ -173,10 +170,10 @@ const usePDFCover = (coverPdfUrl) => {
       console.log('Cover Loading');
     };
 
-    if (coverPdfUrl) {
+    if (CoverPdfUrl) {
       loadCoverPDF();
     }
-  }, [coverPdfUrl]);
+  }, [CoverPdfUrl]);
 
   return { coverTextures, loading, error };
 };
@@ -470,12 +467,12 @@ const Page = ({ number, coverTextures, textures, page, opened, bookClosed, ...pr
 
 
 // メインのブックコンポーネント
-export const PDFBook = ({ pdfUrl, coverpdfUrl, ...props }) => {
+export const PDFBook = ({ pdfUrl, CoverpdfUrl, ...props }) => {
   const [page] = useAtom(pageAtom);
   const [delayedPage, setDelayedPage] = useState(page);
   
   //表紙用
-  const { coverTextures, loading: coverLoading, error: coverError } = usePDFCover(coverpdfUrl);
+  const { coverTextures, loading: coverLoading, error: coverError } = usePDFCover(CoverpdfUrl);
   
   const { textures, loading, error } = usePDFPages(pdfUrl);
 

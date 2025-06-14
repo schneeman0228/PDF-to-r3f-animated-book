@@ -7,7 +7,7 @@ import { PDFUploader } from "./components/Pdf";
 
 function App() {
   const [pdfUrl, setPdfUrl] = useState(null);
-  const [coverPdfUrl, setCoverPdfUrl] = useState(null);
+  const [CoverPdfUrl, setCoverPdfUrl] = useState(null);
   const [showUploader, setShowUploader] = useState(true);
 
   const handlePDFLoad = (url) => {
@@ -39,7 +39,7 @@ function App() {
             <Suspense fallback={null}>
               <Experience 
                 pdfUrl={pdfUrl}
-                coverPdfUrl={coverPdfUrl}
+                CoverPdfUrl={CoverPdfUrl}
               />
             </Suspense>
           </group>
