@@ -1,10 +1,15 @@
 import { Environment, Float, OrbitControls, Text } from "@react-three/drei";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PDFBook } from "./Book_novel";
 
 export const Experience = ({ pdfUrl, CoverPdfUrl }) => {
   const [pdfLoading, setPdfLoading] = useState(false);
   const [pdfError, setPdfError] = useState(null);
+
+  // デバッグ用のログ
+  useEffect(() => {
+    console.log('Experience received props:', { pdfUrl, CoverPdfUrl });
+  }, [pdfUrl, CoverPdfUrl]);
 
   const handlePDFLoadStart = () => {
     console.log("Experience: PDF load start");
@@ -27,15 +32,17 @@ export const Experience = ({ pdfUrl, CoverPdfUrl }) => {
     <>
       {/* PDFが読み込まれている場合はPDFBookを表示 */}
       {pdfUrl && !pdfError && (
-        <PDFBook 
-          pdfUrl={pdfUrl}
-          CoverPdfUrl={CoverPdfUrl} // プロパティ名を統一
-          position={[0, 0, 0]}
-          scale={1}
-          onLoadStart={handlePDFLoadStart}
-          onLoadComplete={handlePDFLoadComplete}
-          onError={handlePDFError}
-        />
+        <>
+          <PDFBook 
+            pdfUrl={pdfUrl}
+            CoverpdfUrl={CoverPdfUrl} // プロパティ名を統一
+            position={[0, 0, 0]}
+            scale={1}
+            onLoadStart={handlePDFLoadStart}
+            onLoadComplete={handlePDFLoadComplete}
+            onError={handlePDFError}
+          />
+        </>
       )}
 
       {/* ローディング中の表示 */}
